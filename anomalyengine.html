@@ -1,0 +1,1885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AnomalyEngine — Quantitative Analytics for Retail Investors</title>
+    <meta name="description" content="AnomalyEngine processes 148+ variables across macro, micro, corporate, and technical data to isolate market anomalies — giving retail investors institutional-grade data infrastructure.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050505;
+            --bg-card: #0c0c0c;
+            --bg-card-2: #0f0f0f;
+            --border: rgba(255,255,255,0.06);
+            --border-bright: rgba(255,255,255,0.12);
+            --text: #e8e8e8;
+            --text-dim: #888;
+            --text-faint: #444;
+            --green: #00d26a;
+            --green-dim: rgba(0,210,106,0.12);
+            --red: #ff4757;
+            --red-dim: rgba(255,71,87,0.12);
+            --amber: #f39c12;
+            --amber-dim: rgba(243,156,18,0.12);
+            --cyan: #00d2ff;
+            --cyan-dim: rgba(0,210,255,0.08);
+            --purple: #a855f7;
+            --purple-dim: rgba(168,85,247,0.08);
+            --mono: 'JetBrains Mono', monospace;
+            --sans: 'Inter', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--sans);
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* === MARQUEE === */
+        .marquee-wrap {
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border);
+            overflow: hidden;
+            position: relative;
+            z-index: 50;
+        }
+
+        .marquee-inner {
+            display: flex;
+            width: max-content;
+            animation: marquee-scroll 350s linear infinite;
+            padding: 10px 0;
+        }
+
+        .marquee-inner:hover { animation-play-state: paused; }
+
+        @keyframes marquee-scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .marquee-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 0 24px;
+            white-space: nowrap;
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            color: var(--text-dim);
+            letter-spacing: 0.3px;
+        }
+
+        .marquee-item .tag {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.6rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .tag-green  { background: var(--green-dim);  color: var(--green); }
+        .tag-red    { background: var(--red-dim);    color: var(--red); }
+        .tag-amber  { background: var(--amber-dim);  color: var(--amber); }
+        .tag-cyan   { background: var(--cyan-dim);   color: var(--cyan); }
+        .tag-purple { background: var(--purple-dim); color: var(--purple); }
+
+        /* === FLOATING CURRENCY SYMBOLS === */
+        .currency-bg {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .currency-bg span {
+            position: absolute;
+            font-family: var(--mono);
+            font-weight: 700;
+            user-select: none;
+            opacity: 0;
+            animation: currency-float linear infinite;
+        }
+
+        @keyframes currency-float {
+            0%   { opacity: 0; transform: translateY(120vh) rotate(0deg) scale(0.5); }
+            5%   { opacity: 0.08; }
+            50%  { opacity: 0.15; }
+            95%  { opacity: 0.08; }
+            100% { opacity: 0; transform: translateY(-20vh) rotate(360deg) scale(1.2); }
+        }
+
+        /* === NAV === */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(5,5,5,0.92);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 28px;
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .logo-mark {
+            width: 32px; height: 32px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, var(--green), #00a854);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--mono);
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: #000;
+        }
+
+        .logo-text {
+            font-weight: 800;
+            font-size: 1rem;
+            letter-spacing: -0.5px;
+            color: var(--text);
+        }
+
+        .logo-sub {
+            font-family: var(--mono);
+            font-size: 0.6rem;
+            color: var(--text-faint);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-top: -2px;
+        }
+
+        /* Tab buttons in nav */
+        .nav-tabs {
+            display: flex;
+            gap: 4px;
+            list-style: none;
+        }
+
+        .tab-btn {
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            background: none;
+            border: 1px solid transparent;
+            color: var(--text-faint);
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .tab-btn:hover:not(.active) {
+            color: var(--text-dim);
+            border-color: var(--border);
+        }
+
+        .tab-btn.active {
+            background: var(--green-dim);
+            border-color: rgba(0,210,106,0.2);
+            color: var(--green);
+        }
+
+        .nav-cta {
+            padding: 7px 18px;
+            border-radius: 6px;
+            background: var(--green-dim);
+            border: 1px solid rgba(0,210,106,0.2);
+            color: var(--green);
+            font-size: 0.78rem;
+            font-weight: 600;
+            font-family: var(--sans);
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+
+        .nav-cta:hover { background: rgba(0,210,106,0.2); }
+
+        /* === TAB PAGES === */
+        .page { display: none; }
+        .page.active { display: block; }
+
+        /* === MAIN WRAPPER === */
+        main { position: relative; z-index: 1; }
+        .page-wrap { max-width: 1100px; margin: 0 auto; padding: 0 28px 80px; }
+
+        /* === SHARED SECTION COMPONENTS === */
+        .sec-label {
+            font-family: var(--mono);
+            font-size: 0.68rem;
+            color: var(--green);
+            letter-spacing: 2.5px;
+            text-transform: uppercase;
+            margin-bottom: 0.6rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sec-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        .sec-h2 {
+            font-size: clamp(1.6rem, 3.5vw, 2.2rem);
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 0.75rem;
+            color: var(--text);
+        }
+
+        .sec-h2 .hl {
+            background: linear-gradient(135deg, var(--green), #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .sec-body {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            line-height: 1.85;
+            max-width: 760px;
+        }
+
+        .sec-body strong { color: var(--text); font-weight: 600; }
+
+        .divider {
+            height: 1px;
+            background: var(--border);
+            margin: 3rem 0;
+        }
+
+        /* === PAGE 1: OVERVIEW === */
+
+        /* Hero two-col layout */
+        .hero-grid {
+            padding: 4rem 0 3rem;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            border-radius: 100px;
+            background: var(--green-dim);
+            border: 1px solid rgba(0,210,106,0.15);
+            color: var(--green);
+            font-family: var(--mono);
+            font-size: 0.68rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            margin-bottom: 1.75rem;
+            width: fit-content;
+        }
+
+        .hero-badge .pulse-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50%       { opacity: 0.3; }
+        }
+
+        .hero-copy h1 {
+            font-size: clamp(1.9rem, 3.8vw, 2.8rem);
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -1.5px;
+            margin-bottom: 1.1rem;
+            color: var(--text);
+        }
+
+        .hero-copy h1 .hl {
+            background: linear-gradient(135deg, var(--green), #00ff88);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-copy .hero-sub {
+            font-family: var(--mono);
+            font-size: 0.82rem;
+            color: var(--text-faint);
+            line-height: 1.9;
+            max-width: 420px;
+        }
+
+        /* Hero note card (right side) */
+        .hero-note-card {
+            background: var(--bg-card);
+            border: 1px solid rgba(0,210,106,0.15);
+            border-radius: 14px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-note-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 4px; height: 100%;
+            background: var(--green);
+            border-radius: 14px 0 0 14px;
+        }
+
+        .hero-note-card::after {
+            content: '';
+            position: absolute;
+            top: -60%; right: -20%;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(0,210,106,0.05), transparent 70%);
+            pointer-events: none;
+        }
+
+        .note-denom {
+            font-family: var(--mono);
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--green);
+            line-height: 1;
+        }
+
+        .note-denom-sub {
+            font-family: var(--mono);
+            font-size: 0.6rem;
+            color: var(--text-faint);
+            letter-spacing: 2px;
+            margin-top: 3px;
+            margin-bottom: 1rem;
+        }
+
+        .note-serial {
+            font-family: var(--mono);
+            font-size: 0.6rem;
+            color: rgba(255,255,255,0.06);
+            letter-spacing: 1.5px;
+            margin-bottom: 1.25rem;
+        }
+
+        .note-dots {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 1.25rem;
+        }
+
+        .note-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--border-bright);
+        }
+
+        .note-dot:nth-child(2) { background: rgba(0,210,106,0.3); width: 8px; height: 8px; }
+        .note-dot:nth-child(3) { background: var(--green); }
+
+        .note-face {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .note-avatar {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: var(--green-dim);
+            border: 1px solid rgba(0,210,106,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--green);
+            flex-shrink: 0;
+        }
+
+        .note-name { font-size: 0.88rem; font-weight: 600; color: var(--text); }
+        .note-role {
+            font-family: var(--mono);
+            font-size: 0.6rem;
+            color: var(--text-faint);
+            letter-spacing: 1px;
+        }
+
+        /* Pain grid */
+        .pain-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            margin: 1.5rem 0;
+        }
+
+        .pain-cell {
+            background: var(--bg-card);
+            padding: 1.4rem 1.2rem;
+            transition: background 0.2s;
+        }
+
+        .pain-cell:hover { background: var(--bg-card-2); }
+
+        .pain-val {
+            font-family: var(--mono);
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--green);
+            margin-bottom: 4px;
+        }
+
+        .pain-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 0.4rem;
+        }
+
+        .pain-desc {
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            color: var(--text-faint);
+            line-height: 1.65;
+        }
+
+        /* VS comparison */
+        .vs-row {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 1rem;
+            align-items: start;
+            margin: 1.5rem 0;
+        }
+
+        .vs-col {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.4rem;
+        }
+
+        .vs-col.them { border-color: rgba(255,71,87,0.15); }
+        .vs-col.us   { border-color: rgba(0,210,106,0.15); }
+
+        .vs-col.us::before {
+            content: '';
+            display: block;
+            height: 2px;
+            background: linear-gradient(90deg, var(--green), transparent);
+            margin: -1.4rem -1.4rem 1.2rem;
+            border-radius: 10px 10px 0 0;
+            opacity: 0.5;
+        }
+
+        .vs-col.them::before {
+            content: '';
+            display: block;
+            height: 2px;
+            background: linear-gradient(90deg, var(--red), transparent);
+            margin: -1.4rem -1.4rem 1.2rem;
+            border-radius: 10px 10px 0 0;
+            opacity: 0.3;
+        }
+
+        .vs-label {
+            font-family: var(--mono);
+            font-size: 0.62rem;
+            letter-spacing: 1.5px;
+            margin-bottom: 1rem;
+        }
+
+        .vs-col.them .vs-label { color: var(--red); }
+        .vs-col.us   .vs-label { color: var(--green); }
+
+        .vs-item {
+            font-family: var(--mono);
+            font-size: 0.74rem;
+            color: var(--text-faint);
+            padding: 6px 0;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 8px;
+            align-items: flex-start;
+            line-height: 1.5;
+        }
+
+        .vs-item:last-child { border-bottom: none; }
+
+        .vs-col.them .tick { color: var(--red); opacity: 0.5; font-size: 0.7rem; flex-shrink: 0; margin-top: 1px; }
+        .vs-col.us   .tick { color: var(--green); font-size: 0.7rem; flex-shrink: 0; margin-top: 1px; }
+
+        .vs-mid {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--mono);
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-faint);
+            padding-top: 3rem;
+        }
+
+        /* Inline disclaimer box */
+        .inline-disc {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem 1.25rem;
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            color: var(--text-faint);
+            line-height: 1.8;
+            margin-top: 2rem;
+        }
+
+        /* === PAGE 2: HOW IT WORKS === */
+
+        .how-hero {
+            background: var(--bg-card);
+            border: 1px solid rgba(0,210,106,0.12);
+            border-radius: 14px;
+            padding: 2.5rem;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 2.5rem;
+            align-items: center;
+            margin: 3rem 0 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .how-hero::after {
+            content: '';
+            position: absolute;
+            top: -40%; right: -10%;
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(0,210,106,0.05), transparent 70%);
+            pointer-events: none;
+        }
+
+        .how-seal {
+            width: 72px; height: 72px;
+            border-radius: 50%;
+            background: var(--green-dim);
+            border: 2px solid rgba(0,210,106,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .how-seal-sym {
+            font-family: var(--mono);
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--green);
+            opacity: 0.5;
+            line-height: 1;
+        }
+
+        .how-seal-txt {
+            font-family: var(--mono);
+            font-size: 0.55rem;
+            color: var(--text-faint);
+            letter-spacing: 1px;
+        }
+
+        .how-hero-label {
+            font-family: var(--mono);
+            font-size: 0.65rem;
+            color: var(--green);
+            letter-spacing: 2px;
+            margin-bottom: 0.5rem;
+        }
+
+        .how-hero-val {
+            font-family: var(--mono);
+            font-size: 2.4rem;
+            font-weight: 700;
+            color: var(--text);
+            letter-spacing: -1px;
+            line-height: 1;
+            margin-bottom: 0.5rem;
+        }
+
+        .how-hero-sub {
+            font-size: 0.88rem;
+            color: var(--text-dim);
+            line-height: 1.65;
+            max-width: 580px;
+        }
+
+        .how-bands {
+            display: flex;
+            gap: 3px;
+            margin-top: 1rem;
+        }
+
+        .how-band {
+            height: 3px;
+            border-radius: 2px;
+            flex: 1;
+            background: var(--border);
+        }
+
+        .how-band.fill   { background: rgba(0,210,106,0.3); }
+        .how-band.active { background: var(--green); }
+
+        /* Steps */
+        .how-steps {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 1.5rem 0;
+        }
+
+        .step {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.4rem 1.6rem;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 1.4rem;
+            align-items: start;
+            transition: border-color 0.2s;
+        }
+
+        .step:hover { border-color: rgba(0,210,106,0.2); }
+
+        .step-num {
+            font-family: var(--mono);
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--green);
+            border: 1px solid rgba(0,210,106,0.2);
+            background: var(--green-dim);
+            border-radius: 6px;
+            padding: 5px 10px;
+            white-space: nowrap;
+            letter-spacing: 0.5px;
+        }
+
+        .step-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 5px;
+        }
+
+        .step-desc {
+            font-family: var(--mono);
+            font-size: 0.74rem;
+            color: var(--text-faint);
+            line-height: 1.75;
+        }
+
+        /* FAQ */
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin: 1.5rem 0;
+        }
+
+        .faq-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: border-color 0.2s;
+        }
+
+        .faq-item.open { border-color: rgba(0,210,106,0.2); }
+
+        .faq-q {
+            padding: 1.1rem 1.4rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-dim);
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            user-select: none;
+        }
+
+        .faq-item.open .faq-q { color: var(--text); }
+
+        .faq-icon {
+            font-family: var(--mono);
+            font-size: 1.1rem;
+            color: var(--text-faint);
+            flex-shrink: 0;
+            transition: transform 0.2s, color 0.2s;
+            line-height: 1;
+        }
+
+        .faq-item.open .faq-icon { transform: rotate(45deg); color: var(--green); }
+
+        .faq-a {
+            display: none;
+            padding: 0 1.4rem 1.1rem;
+            font-family: var(--mono);
+            font-size: 0.76rem;
+            color: var(--text-faint);
+            line-height: 1.85;
+            border-top: 1px solid var(--border);
+            padding-top: 1rem;
+        }
+
+        .faq-item.open .faq-a { display: block; }
+
+        /* === PAGE 3: DATA ENGINE === */
+
+        .metric-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--border);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 1.5rem 0;
+        }
+
+        .mc {
+            background: var(--bg-card);
+            padding: 1.25rem;
+            text-align: center;
+        }
+
+        .mc-v {
+            font-family: var(--mono);
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--green);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .mc-l {
+            font-family: var(--mono);
+            font-size: 0.6rem;
+            color: var(--text-faint);
+            letter-spacing: 1.5px;
+        }
+
+        /* Variable cloud */
+        .variable-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            padding: 1.4rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            margin: 1.5rem 0;
+        }
+
+        .var-legend {
+            display: flex;
+            gap: 1.25rem;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+            width: 100%;
+        }
+
+        .vl-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-family: var(--mono);
+            font-size: 0.62rem;
+            color: var(--text-faint);
+            letter-spacing: 0.5px;
+        }
+
+        .vl-dot {
+            width: 7px; height: 7px;
+            border-radius: 2px;
+        }
+
+        .vl-dot.cat-macro  { background: rgba(0,210,106,0.4); }
+        .vl-dot.cat-micro  { background: rgba(243,156,18,0.4); }
+        .vl-dot.cat-corp   { background: rgba(168,85,247,0.4); }
+        .vl-dot.cat-tech   { background: rgba(0,210,255,0.4); }
+
+        .var-pill {
+            font-family: var(--mono);
+            font-size: 0.68rem;
+            letter-spacing: 0.3px;
+            padding: 4px 11px;
+            border-radius: 4px;
+            border: 1px solid;
+        }
+
+        .var-pill.cat-macro { color: var(--green);  border-color: rgba(0,210,106,0.2);  background: rgba(0,210,106,0.05); }
+        .var-pill.cat-micro { color: var(--amber);  border-color: rgba(243,156,18,0.2); background: rgba(243,156,18,0.05); }
+        .var-pill.cat-corp  { color: var(--purple); border-color: rgba(168,85,247,0.2); background: rgba(168,85,247,0.05); }
+        .var-pill.cat-tech  { color: var(--cyan);   border-color: rgba(0,210,255,0.2);  background: rgba(0,210,255,0.05); }
+
+        /* Data sources table */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: var(--mono);
+            font-size: 0.76rem;
+            margin: 1.5rem 0;
+        }
+
+        .data-table th {
+            text-align: left;
+            color: var(--text-faint);
+            letter-spacing: 1.2px;
+            font-size: 0.6rem;
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .data-table td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-dim);
+            vertical-align: top;
+        }
+
+        .data-table tr:hover td { background: var(--bg-card); color: var(--text); }
+        .data-table .col-green  { color: var(--green); }
+        .data-table .col-dim    { color: var(--text-faint); }
+
+        /* Gold bar */
+        .gold-bar {
+            background: var(--bg-card);
+            border: 1px solid rgba(243,156,18,0.12);
+            border-radius: 12px;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 2rem;
+            align-items: center;
+            margin: 1.5rem 0;
+        }
+
+        .gold-brick {
+            width: 64px; height: 44px;
+            background: rgba(243,156,18,0.05);
+            border: 2px solid rgba(243,156,18,0.2);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .gold-line {
+            height: 2px;
+            width: 36px;
+            background: rgba(243,156,18,0.2);
+            border-radius: 1px;
+        }
+
+        .gold-line:nth-child(2) { width: 28px; background: rgba(243,156,18,0.35); }
+
+        .gold-wt {
+            font-family: var(--mono);
+            font-size: 0.55rem;
+            color: rgba(243,156,18,0.4);
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+
+        .gold-copy-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--amber);
+            margin-bottom: 0.5rem;
+        }
+
+        .gold-copy-body {
+            font-family: var(--mono);
+            font-size: 0.74rem;
+            color: var(--text-faint);
+            line-height: 1.85;
+        }
+
+        /* === PAGE 4: TEAM === */
+
+        .founders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 1.25rem;
+            margin: 1.5rem 0;
+        }
+
+        .founder-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            position: relative;
+            transition: border-color 0.2s;
+        }
+
+        .founder-card:hover { border-color: rgba(0,210,106,0.2); }
+
+        .founder-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--green), transparent 70%);
+            border-radius: 12px 12px 0 0;
+            opacity: 0.5;
+        }
+
+        .founder-av {
+            width: 48px; height: 48px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--green), #008f4c);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--mono);
+            font-weight: 700;
+            font-size: 1rem;
+            color: #000;
+            margin-bottom: 1.25rem;
+        }
+
+        .founder-card h3 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--text);
+        }
+
+        .founder-role {
+            font-family: var(--mono);
+            font-size: 0.68rem;
+            color: var(--green);
+            letter-spacing: 0.5px;
+            margin-bottom: 1rem;
+        }
+
+        .founder-focus {
+            font-family: var(--mono);
+            font-size: 0.76rem;
+            color: var(--text-faint);
+            line-height: 1.75;
+        }
+
+        /* Hiring card */
+        .hiring-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+            margin: 1.5rem 0;
+        }
+
+        .hiring-card::after {
+            content: '';
+            position: absolute;
+            top: -40%; right: -15%;
+            width: 350px; height: 350px;
+            background: radial-gradient(circle, rgba(0,210,106,0.05), transparent 70%);
+            pointer-events: none;
+        }
+
+        .hiring-card h3 {
+            font-size: clamp(1.4rem, 3vw, 1.9rem);
+            font-weight: 800;
+            letter-spacing: -0.8px;
+            margin-bottom: 1rem;
+            position: relative; z-index: 1;
+            color: var(--text);
+        }
+
+        .hiring-card p {
+            font-size: 0.9rem;
+            color: var(--text-dim);
+            max-width: 640px;
+            line-height: 1.75;
+            margin-bottom: 0.75rem;
+            position: relative; z-index: 1;
+        }
+
+        .skills-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin: 1.25rem 0;
+            position: relative; z-index: 1;
+        }
+
+        .skill-tag {
+            font-family: var(--mono);
+            font-size: 0.65rem;
+            color: var(--text-faint);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 4px 10px;
+            letter-spacing: 0.5px;
+        }
+
+        .cta-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            position: relative; z-index: 1;
+        }
+
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 24px;
+            border-radius: 8px;
+            background: var(--green);
+            color: #000;
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .cta-btn:hover { background: #00e676; }
+
+        .cta-note {
+            font-family: var(--mono);
+            font-size: 0.7rem;
+            color: var(--text-faint);
+        }
+
+        /* === FOOTER === */
+        .footer-wrap {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 28px 24px;
+        }
+
+        .footer {
+            border-top: 1px solid var(--border);
+            padding-top: 2rem;
+        }
+
+        .disclaimer {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.25rem 1.75rem;
+            font-size: 0.74rem;
+            color: var(--text-faint);
+            line-height: 1.75;
+            text-align: center;
+            font-family: var(--mono);
+        }
+
+        .disclaimer strong { color: var(--text-dim); font-weight: 500; }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1.25rem;
+            padding-top: 1.25rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .footer-brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            color: var(--text-faint);
+        }
+
+        .footer-brand .logo-mark { width: 22px; height: 22px; font-size: 0.6rem; }
+
+        .footer-year {
+            font-family: var(--mono);
+            font-size: 0.72rem;
+            color: var(--text-faint);
+        }
+
+        .engine-live {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--mono);
+            font-size: 0.68rem;
+            color: var(--green);
+            letter-spacing: 1px;
+        }
+
+        /* === HAMBURGER === */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            gap: 5px;
+            width: 36px;
+            height: 36px;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            padding: 8px;
+            flex-shrink: 0;
+            transition: border-color 0.2s;
+        }
+        .hamburger:hover { border-color: rgba(0,210,106,0.3); }
+        .hamburger span {
+            display: block;
+            height: 1.5px;
+            background: var(--text-dim);
+            border-radius: 2px;
+            transition: all 0.25s;
+        }
+        .hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); background: var(--green); }
+        .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+        .hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); background: var(--green); }
+
+        /* === SIDEBAR OVERLAY === */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(4px);
+            z-index: 200;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .sidebar-overlay.open { display: block; opacity: 1; }
+
+        /* === SIDEBAR === */
+        .sidebar {
+            position: fixed;
+            top: 0; right: 0;
+            width: 280px;
+            height: 100%;
+            background: #080808;
+            border-left: 1px solid var(--border);
+            z-index: 300;
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.4,0,0.2,1);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        .sidebar.open { transform: translateX(0); }
+
+        .sidebar-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .sidebar-close {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            font-size: 1.1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            line-height: 1;
+        }
+        .sidebar-close:hover { border-color: var(--red); color: var(--red); }
+
+        .sidebar-nav {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            padding: 20px 16px;
+            flex: 1;
+        }
+
+        .sidebar-tab {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background: none;
+            color: var(--text-dim);
+            font-family: var(--sans);
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            width: 100%;
+        }
+        .sidebar-tab:hover { background: var(--bg-card); border-color: var(--border); color: var(--text); }
+        .sidebar-tab.active { background: var(--green-dim); border-color: rgba(0,210,106,0.2); color: var(--green); }
+
+        .sidebar-tab-icon {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            background: var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+        .sidebar-tab.active .sidebar-tab-icon { background: rgba(0,210,106,0.15); }
+
+        .sidebar-tab-label { display: flex; flex-direction: column; gap: 2px; }
+        .sidebar-tab-label span { font-size: 0.72rem; color: var(--text-faint); font-family: var(--mono); letter-spacing: 0.3px; }
+
+        .sidebar-footer {
+            padding: 16px 20px;
+            border-top: 1px solid var(--border);
+        }
+        .sidebar-footer p {
+            font-family: var(--mono);
+            font-size: 0.62rem;
+            color: var(--text-faint);
+            line-height: 1.7;
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            /* Marquee */
+            .marquee-item      { font-size: 0.65rem; padding: 0 16px; }
+            .marquee-item .tag { font-size: 0.55rem; padding: 2px 6px; }
+
+            /* Nav */
+            .nav-tabs  { display: none; }
+            .hamburger { display: flex; }
+            nav        { padding: 10px 16px; }
+
+            /* Layout */
+            .page-wrap     { padding: 0 16px 60px; }
+            .hero-grid     { padding: 2rem 0 1.5rem; }
+            .hero-copy h1,
+            section .hero h1 { letter-spacing: -1px; }
+            .pain-grid     { grid-template-columns: repeat(2,1fr); }
+            .vs-row        { grid-template-columns: 1fr; }
+            .vs-mid        { padding: 0.25rem 0; text-align: center; }
+            .metric-strip  { grid-template-columns: repeat(2,1fr); }
+            .founders-grid { grid-template-columns: 1fr; }
+            .how-hero      { grid-template-columns: 1fr; gap: 1.5rem; }
+            .gold-bar      { grid-template-columns: 1fr; gap: 1rem; }
+            .footer-bottom { flex-direction: column; gap: 0.75rem; text-align: center; }
+            .hiring-card   { padding: 1.75rem; }
+            .variable-cloud { padding: 1rem; }
+            .data-table th, .data-table td { font-size: 0.65rem; padding: 8px 8px; }
+        }
+
+        @media (max-width: 480px) {
+            .pain-grid    { grid-template-columns: 1fr; }
+            .metric-strip { grid-template-columns: repeat(2,1fr); }
+            .how-steps .step { grid-template-columns: 1fr; gap: 0.75rem; }
+            .step-num  { width: fit-content; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MARQUEE -->
+    <div class="marquee-wrap">
+        <div class="marquee-inner" id="marquee">
+            <!-- Content injected by JS for seamless loop -->
+        </div>
+    </div>
+
+    <!-- FLOATING CURRENCY SYMBOLS -->
+    <div class="currency-bg" id="currencyBg"></div>
+
+    <!-- SIDEBAR OVERLAY -->
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo">
+                <div class="logo-mark">AE</div>
+                <div>
+                    <div class="logo-text">AnomalyEngine</div>
+                    <div class="logo-sub">Quantitative Analytics</div>
+                </div>
+            </div>
+            <button class="sidebar-close" onclick="closeSidebar()">✕</button>
+        </div>
+        <nav class="sidebar-nav">
+            <button class="sidebar-tab active" id="stab-overview" onclick="switchTab('overview')">
+                <div class="sidebar-tab-icon">📊</div>
+                <div class="sidebar-tab-label">Overview<span>Mission &amp; Positioning</span></div>
+            </button>
+            <button class="sidebar-tab" id="stab-how" onclick="switchTab('how')">
+                <div class="sidebar-tab-icon">⚙️</div>
+                <div class="sidebar-tab-label">How It Works<span>4-Step Engine Process</span></div>
+            </button>
+            <button class="sidebar-tab" id="stab-data" onclick="switchTab('data')">
+                <div class="sidebar-tab-icon">🗄️</div>
+                <div class="sidebar-tab-label">Data Engine<span>148+ Variables &amp; Sources</span></div>
+            </button>
+            <button class="sidebar-tab" id="stab-team" onclick="switchTab('team')">
+                <div class="sidebar-tab-icon">👥</div>
+                <div class="sidebar-tab-label">Team<span>Founders &amp; Careers</span></div>
+            </button>
+        </nav>
+        <div class="sidebar-footer">
+            <p>© 2025–2026 AnomalyEngine · India<br>Quantitative Data Analytics Platform</p>
+        </div>
+    </div>
+
+    <!-- NAV -->
+    <nav>
+        <div class="nav-inner">
+            <a href="#" class="logo" onclick="switchTab('overview'); return false;">
+                <div class="logo-mark">AE</div>
+                <div>
+                    <div class="logo-text">AnomalyEngine</div>
+                    <div class="logo-sub">Quantitative Analytics</div>
+                </div>
+            </a>
+            <ul class="nav-tabs" id="navTabs">
+                <li><button class="tab-btn active" onclick="switchTab('overview')">Overview</button></li>
+                <li><button class="tab-btn" onclick="switchTab('how')">How It Works</button></li>
+                <li><button class="tab-btn" onclick="switchTab('data')">Data Engine</button></li>
+                <li><button class="tab-btn" onclick="switchTab('team')">Team</button></li>
+            </ul>
+            <button class="hamburger" id="hamburger" onclick="openSidebar()" aria-label="Open menu">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+    </nav>
+
+    <main>
+
+        <!-- =============================== -->
+        <!-- PAGE 1: OVERVIEW                -->
+        <!-- =============================== -->
+        <div class="page active" id="page-overview">
+            <div class="page-wrap">
+
+                <!-- Hero -->
+                <div class="hero-grid">
+                    <div class="hero-badge">
+                        <span class="pulse-dot"></span>
+                        LIVE DATA PROCESSING
+                    </div>
+                    <h1 style="font-size:clamp(2.4rem,5.5vw,4.2rem);font-weight:900;line-height:1.05;letter-spacing:-2px;max-width:850px;margin-bottom:1.5rem">
+                        Processing High-Dimensional <span class="hl">Market Physics</span> for <span class="hl" style="color: #00ff88;">Retail Investors.</span>
+                    </h1>
+                    <p class="hero-sub" style="font-size:clamp(1rem,2vw,1.25rem);max-width:700px;margin-bottom:2rem">AnomalyEngine tracks multi-digit variables across microeconomic indicators, structural corporate disclosures, and global macroeconomic data streams to isolate market anomalies.</p>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- Problem Space -->
+                <div class="sec-label">THE PROBLEM SPACE</div>
+                <h2 class="sec-h2">What you're fighting <span class="hl">without us</span></h2>
+                <p class="sec-body" style="margin-bottom:1.25rem">Individual investors in India manage ₹28 lakh crore in equity portfolios. Yet <strong>the tools available to them were designed for the era of physical trading floors</strong> — not for a world where institutions run 40,000 data points per second before 9:15 AM.</p>
+
+                <div class="pain-grid">
+                    <div class="pain-cell">
+                        <div class="pain-val">5–10</div>
+                        <div class="pain-title">Metrics in standard screeners</div>
+                        <div class="pain-desc">P/E, EPS, RSI, MACD. The same 8 numbers your neighbour is also looking at.</div>
+                    </div>
+                    <div class="pain-cell">
+                        <div class="pain-val">0.3s</div>
+                        <div class="pain-title">Institutional reaction time</div>
+                        <div class="pain-desc">Algos process RBI policy PDF in under a second. You read it in tomorrow's paper.</div>
+                    </div>
+                    <div class="pain-cell">
+                        <div class="pain-val">₹72L Cr</div>
+                        <div class="pain-title">FII capital vs retail</div>
+                        <div class="pain-desc">Foreign institutions move markets before retail traders even open their terminals.</div>
+                    </div>
+                    <div class="pain-cell">
+                        <div class="pain-val">83%</div>
+                        <div class="pain-title">Options traders lose money</div>
+                        <div class="pain-desc">SEBI data. Not because they lack courage — because they lack structured data.</div>
+                    </div>
+                    <div class="pain-cell">
+                        <div class="pain-val">₹25L</div>
+                        <div class="pain-title">Bloomberg terminal cost per year</div>
+                        <div class="pain-desc">A Bloomberg terminal costs ₹25 lakh/year. Nobody told you about the free tier. Because there wasn't one.</div>
+                    </div>
+                    <div class="pain-cell">
+                        <div class="pain-val">1 tip</div>
+                        <div class="pain-title">Average research depth in groups</div>
+                        <div class="pain-desc">"Bhai iska chart achha lag raha hai." That's the full thesis in most groups.</div>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <!-- VS Comparison -->
+                <div class="sec-label">HOW WE POSITION</div>
+                <h2 class="sec-h2">Them vs <span class="hl">AnomalyEngine</span></h2>
+
+                <div class="vs-row">
+                    <div class="vs-col them">
+                        <div class="vs-label">STANDARD SCREENERS</div>
+                        <div class="vs-item"><span class="tick">✕</span>5–10 generic metrics</div>
+                        <div class="vs-item"><span class="tick">✕</span>No macro correlation</div>
+                        <div class="vs-item"><span class="tick">✕</span>No historical cycle context</div>
+                        <div class="vs-item"><span class="tick">✕</span>No structural disclosure parsing</div>
+                        <div class="vs-item"><span class="tick">✕</span>Opinion-based signals</div>
+                        <div class="vs-item"><span class="tick">✕</span>Delayed data feeds</div>
+                    </div>
+                    <div class="vs-mid">VS</div>
+                    <div class="vs-col us">
+                        <div class="vs-label">ANOMALYENGINE</div>
+                        <div class="vs-item"><span class="tick">✓</span>Multi-hundred variable processing</div>
+                        <div class="vs-item"><span class="tick">✓</span>Global macro-micro correlation</div>
+                        <div class="vs-item"><span class="tick">✓</span>Historical cycle pattern matching</div>
+                        <div class="vs-item"><span class="tick">✓</span>Automated filing &amp; disclosure analysis</div>
+                        <div class="vs-item"><span class="tick">✓</span>Zero opinion — pure computation</div>
+                        <div class="vs-item"><span class="tick">✓</span>Real-time data stream processing</div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+
+        <!-- =============================== -->
+        <!-- PAGE 2: HOW IT WORKS            -->
+        <!-- =============================== -->
+        <div class="page" id="page-how">
+            <div class="page-wrap">
+
+                <div class="how-hero">
+                    <div class="how-seal">
+                        <div class="how-seal-sym">$</div>
+                        <div class="how-seal-txt">AE</div>
+                    </div>
+                    <div>
+                        <div class="how-hero-label">HOW IT WORKS — SIMPLE VERSION</div>
+                        <div class="how-hero-val">4 steps</div>
+                        <div class="how-hero-sub">From raw public data to structured anomaly signals — without opinions, without bias, without someone trying to sell you something.</div>
+                        <div class="how-bands">
+                            <div class="how-band fill"></div>
+                            <div class="how-band fill"></div>
+                            <div class="how-band fill"></div>
+                            <div class="how-band active"></div>
+                            <div class="how-band"></div>
+                            <div class="how-band"></div>
+                            <div class="how-band"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="how-steps">
+                    <div class="step">
+                        <div class="step-num">01 · INGEST</div>
+                        <div>
+                            <div class="step-title">All public data enters the engine simultaneously</div>
+                            <div class="step-desc">BSE/NSE filings, RBI bulletins, SEBI disclosures, quarterly results, corporate announcements, global macro indices, commodity prices, currency pairs, FII/DII flows. All feeds normalized into a unified structured format — no manual curation, no editorial filter. If it's public data, we process it.</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">02 · CORRELATE</div>
+                        <div>
+                            <div class="step-title">Variables cross-referenced against historical cycles</div>
+                            <div class="step-desc">The engine maps current variable states against decades of market cycles — 2008 financial stress, 2013 taper tantrum, 2020 pandemic data, 2022 rate shock. When current readings resemble prior anomalous periods, the pattern is flagged — not interpreted, just mapped.</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">03 · ISOLATE</div>
+                        <div>
+                            <div class="step-title">Statistical anomalies separated from market noise</div>
+                            <div class="step-desc">Not every unusual data point is meaningful. The engine filters standard deviation outliers against multi-variable baselines. An earnings surprise means nothing without the context of sector-wide margin compression, FII positioning, and macro headwinds happening simultaneously.</div>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <div class="step-num">04 · DELIVER</div>
+                        <div>
+                            <div class="step-title">Structured data output, zero opinions</div>
+                            <div class="step-desc">You receive structured, verifiable data outputs. Not a buy/sell call. Not a "multibagger pick." A mathematical verification layer — so when you make a decision, you know what the data says across 100+ variables, not just what one analyst or one Telegram admin says.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="sec-label">FREQUENTLY ASKED</div>
+                <h2 class="sec-h2">Questions individual investors ask</h2>
+
+                <div class="faq-list">
+                    <div class="faq-item">
+                        <div class="faq-q" onclick="toggleFaq(this)">Is this for beginners or experienced investors?<span class="faq-icon">+</span></div>
+                        <div class="faq-a">Both. If you are new, the engine shows you what data actually drives markets versus what YouTube channels say drives markets. If you are experienced, it gives you a systematic way to verify your existing thesis using a broader data set than you currently have access to.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-q" onclick="toggleFaq(this)">Will it tell me which stocks to buy?<span class="faq-icon">+</span></div>
+                        <div class="faq-a">No. We build data verification engines — not investment advisors. The output tells you what the data shows. The decision remains entirely yours. This is intentional: our purpose is to make your research objective, not to replace it.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-q" onclick="toggleFaq(this)">How is this different from Tickertape or Screener.in?<span class="faq-icon">+</span></div>
+                        <div class="faq-a">Those tools show company-level fundamentals — mostly standard financial ratios from balance sheets. AnomalyEngine cross-correlates those same fundamentals against macro indicators, sector cycles, FII positioning, global events, and historical stress patterns simultaneously. The difference is dimension count, not data type.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-q" onclick="toggleFaq(this)">Do I need to understand quant finance to use this?<span class="faq-icon">+</span></div>
+                        <div class="faq-a">No. The engine handles the multi-variable computation. What you need is the ability to read structured data objectively and apply it to your own strategy. We make complex data readable — not magic, not hidden signals. Just a larger, cleaner view of what's already publicly available.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-q" onclick="toggleFaq(this)">Is this SEBI compliant?<span class="faq-icon">+</span></div>
+                        <div class="faq-a">Yes. We are an analytics and data processing platform — not an investment adviser. We do not give directional calls, manage portfolios, or charge for trading tips. We build computation infrastructure. SEBI registration applies to advisers; we are a software engine that processes publicly available data.</div>
+                    </div>
+                    <div class="faq-item">
+                        <div class="faq-q" onclick="toggleFaq(this)">What if I already use a paid research service?<span class="faq-icon">+</span></div>
+                        <div class="faq-a">AnomalyEngine is a verification layer, not a replacement for research. Use it to objectively check whether the data supports the thesis you are being sold. If the macro, micro, and filing signals align with the recommendation — great. If they don't, you now know before you invest.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =============================== -->
+        <!-- PAGE 3: DATA ENGINE             -->
+        <!-- =============================== -->
+        <div class="page" id="page-data">
+            <div class="page-wrap">
+
+                <div style="padding-top:3rem"></div>
+                <div class="sec-label">DATA ENGINE · SPECIFICATION</div>
+                <h2 class="sec-h2">What the engine <span class="hl">actually processes</span></h2>
+                <p class="sec-body" style="margin-bottom:1rem">Every variable below is sourced from public filings, government releases, and exchange feeds. No proprietary data, no black box. You can verify every input independently.</p>
+
+                <div class="metric-strip">
+                    <div class="mc"><span class="mc-v">148+</span><span class="mc-l">VARIABLES TRACKED</span></div>
+                    <div class="mc"><span class="mc-v">4</span><span class="mc-l">DATA CATEGORIES</span></div>
+                    <div class="mc"><span class="mc-v">30yr</span><span class="mc-l">HISTORICAL DEPTH</span></div>
+                    <div class="mc"><span class="mc-v">Δ0</span><span class="mc-l">OPINIONS ADDED</span></div>
+                </div>
+
+                <div class="variable-cloud">
+                    <div class="var-legend">
+                        <div class="vl-item"><div class="vl-dot cat-macro"></div>MACROECONOMIC</div>
+                        <div class="vl-item"><div class="vl-dot cat-micro"></div>MICROECONOMIC</div>
+                        <div class="vl-item"><div class="vl-dot cat-corp"></div>CORPORATE FILINGS</div>
+                        <div class="vl-item"><div class="vl-dot cat-tech"></div>TECHNICAL FLOWS</div>
+                    </div>
+                    <span class="var-pill cat-macro">RBI Repo Rate</span>
+                    <span class="var-pill cat-corp">EBITDA Margin</span>
+                    <span class="var-pill cat-tech">FII Net Position</span>
+                    <span class="var-pill cat-micro">Working Capital Cycle</span>
+                    <span class="var-pill cat-macro">CPI Inflation YoY</span>
+                    <span class="var-pill cat-corp">Promoter Pledging %</span>
+                    <span class="var-pill cat-tech">Put-Call Ratio</span>
+                    <span class="var-pill cat-macro">Current Account Deficit</span>
+                    <span class="var-pill cat-micro">Inventory Turnover</span>
+                    <span class="var-pill cat-corp">Annual Report Disclosures</span>
+                    <span class="var-pill cat-macro">USD/INR Volatility</span>
+                    <span class="var-pill cat-tech">Delivery Volume %</span>
+                    <span class="var-pill cat-micro">Receivables Days</span>
+                    <span class="var-pill cat-corp">Related Party Transactions</span>
+                    <span class="var-pill cat-macro">Brent Crude $/bbl</span>
+                    <span class="var-pill cat-tech">India VIX Level</span>
+                    <span class="var-pill cat-micro">Debt/Equity Trend</span>
+                    <span class="var-pill cat-corp">Auditor Change Flags</span>
+                    <span class="var-pill cat-macro">US Fed Funds Rate</span>
+                    <span class="var-pill cat-tech">DII Contra Flow</span>
+                    <span class="var-pill cat-micro">Cash Conversion Cycle</span>
+                    <span class="var-pill cat-corp">CAPEX vs Depreciation</span>
+                    <span class="var-pill cat-macro">Yield Curve Shape</span>
+                    <span class="var-pill cat-tech">Options OI Skew</span>
+                    <span class="var-pill cat-micro">Gross Margin Compression</span>
+                    <span class="var-pill cat-corp">Management Guidance Deltas</span>
+                    <span class="var-pill cat-macro">Global PMI Composite</span>
+                    <span class="var-pill cat-tech">Sector Rotation Signal</span>
+                    <span class="var-pill cat-micro">Revenue Concentration Risk</span>
+                    <span class="var-pill cat-corp">SEBI Filing Anomalies</span>
+                    <span class="var-pill cat-macro">China Trade Data</span>
+                    <span class="var-pill cat-tech">Breadth Thrust Indicator</span>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="sec-label">DATA SOURCES · VERIFIED</div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>SOURCE</th>
+                            <th>TYPE</th>
+                            <th>FREQUENCY</th>
+                            <th>STATUS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="col-green">BSE / NSE Filings</td><td>Corporate disclosures</td><td>Intraday</td><td class="col-green">LIVE</td></tr>
+                        <tr><td class="col-green">RBI Data Warehouse</td><td>Monetary &amp; macro</td><td>Daily / Monthly</td><td class="col-green">LIVE</td></tr>
+                        <tr><td class="col-green">SEBI Public Disclosures</td><td>Regulatory filings</td><td>Real-time</td><td class="col-green">LIVE</td></tr>
+                        <tr><td class="col-green">MoSPI Economic Data</td><td>Microeconomic indices</td><td>Monthly</td><td class="col-green">LIVE</td></tr>
+                        <tr><td class="col-green">NSDL / CDSL Flow Data</td><td>FII/DII positions</td><td>Daily EOD</td><td class="col-green">LIVE</td></tr>
+                        <tr><td class="col-green">World Bank / IMF</td><td>Global macro</td><td>Monthly</td><td class="col-green">LIVE</td></tr>
+                        <tr><td class="col-green">Fed Reserve H.4.1 / FRED</td><td>US monetary data</td><td>Weekly</td><td class="col-green">LIVE</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="gold-bar">
+                    <div>
+                        <div class="gold-brick">
+                            <div class="gold-line"></div>
+                            <div class="gold-line"></div>
+                            <div class="gold-line"></div>
+                        </div>
+                        <div class="gold-wt">AU · 995</div>
+                    </div>
+                    <div>
+                        <div class="gold-copy-title">Why we use only public data</div>
+                        <div class="gold-copy-body">Gold is valuable because it is verifiable — weight, purity, and price are independently auditable. We apply the same standard to data. Every variable in our engine can be traced back to an official government or exchange source. You will never see a signal you cannot verify yourself. We are a computation layer on top of public truth — not a proprietary black box.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- =============================== -->
+        <!-- PAGE 4: TEAM                    -->
+        <!-- =============================== -->
+        <div class="page" id="page-team">
+            <div class="page-wrap">
+
+                <div style="padding-top:3rem"></div>
+                <div class="sec-label">SECTION · FOUNDERS</div>
+                <h2 class="sec-h2">Behind the <span class="hl">Engine</span></h2>
+                <p class="sec-body" style="margin-bottom:0.5rem">Two builders — one obsessed with systems architecture, one with quantitative data models. Both convinced that retail investors deserve better infrastructure.</p>
+
+                <div class="founders-grid">
+                    <div class="founder-card">
+                        <div class="founder-av">NP</div>
+                        <h3>Nishant Parwani</h3>
+                        <div class="founder-role">CO-FOUNDER · STRATEGIST &amp; BUSINESS LEAD</div>
+                        <p class="founder-focus">Drives the strategic and financial direction of AnomalyEngine. Focused on market positioning, investor relations, and translating complex quantitative research into a product framework that serves retail participants. Bridges the gap between financial domain knowledge and what the engine needs to solve.</p>
+                    </div>
+                    <div class="founder-card">
+                        <div class="founder-av">DJ</div>
+                        <h3>Dayaan Jain</h3>
+                        <div class="founder-role">CO-FOUNDER · TECH LEAD &amp; ENGINE ARCHITECT</div>
+                        <p class="founder-focus">Leads all technical development — building the data ingestion pipelines, processing infrastructure, and anomaly detection algorithms that power the engine. Responsible for architecture decisions, system performance, and turning quantitative research requirements into functional, scalable software.</p>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="sec-label">CAREERS · OPEN POSITIONS</div>
+                <h2 class="sec-h2">Join the <span class="hl">Build</span></h2>
+
+                <div class="hiring-card">
+                    <h3>We're expanding</h3>
+                    <p>We are expanding our engineering and analytical capabilities. If you are passionate about building heavy data processing infrastructure, optimizing distributed databases, or refining financial econometric models, we want to hear from you.</p>
+                    <p style="font-size:0.82rem;">We do not care about your college. We care about what you have built, what data you have processed, and how you think about systems under load. Send us proof of work.</p>
+                    <div class="skills-wrap">
+                        <span class="skill-tag">DISTRIBUTED SYSTEMS</span>
+                        <span class="skill-tag">ECONOMETRICS</span>
+                        <span class="skill-tag">DATABASE OPTIMIZATION</span>
+                        <span class="skill-tag">QUANT RESEARCH</span>
+                        <span class="skill-tag">DATA PIPELINES</span>
+                        <span class="skill-tag">FINANCIAL MODELLING</span>
+                        <span class="skill-tag">STATISTICAL ANALYSIS</span>
+                        <span class="skill-tag">PYTHON / RUST / C++</span>
+                        <span class="skill-tag">KAFKA / FLINK</span>
+                        <span class="skill-tag">TIMESERIES DBs</span>
+                    </div>
+                    <div class="cta-row">
+                        <a href="mailto:contact@nishantparwani.com" class="cta-btn">
+                            <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+                            contact@nishantparwani.com
+                        </a>
+                        <span class="cta-note">ATTACH PORTFOLIO OR GITHUB</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- FOOTER -->
+    <div class="footer-wrap">
+        <div class="footer">
+            <div class="disclaimer">
+                <strong>Disclaimer:</strong> AnomalyEngine is an automated quantitative data analytics software. We are not a SEBI-registered Investment Adviser (RIA) or Research Analyst. The engine compiles and analyzes data from public filings; outputs do not constitute formal investment advice or directional trading tips. Users are strongly encouraged to verify all information independently or review data patterns with a licensed financial professional before making any investment decision.
+            </div>
+            <div class="footer-bottom">
+                <div class="footer-brand">
+                    <div class="logo-mark">AE</div>
+                    <span>AnomalyEngine</span>
+                </div>
+                <div class="engine-live">
+                    <span class="pulse-dot" style="width:5px;height:5px;background:var(--green);border-radius:50%;display:inline-block;animation:pulse 2s ease-in-out infinite"></span>
+                    ENGINE ONLINE
+                </div>
+                <div class="footer-year">© 2025–2026 ANOMALYENGINE · INDIA</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === MARQUEE DATA ===
+        const marqueeItems = [
+            { text: "April 1992 — Harshad Mehta securities scam exposed · ₹5,000 Cr fraud triggers Sensex crash of 40% · Securities market reformed permanently", tag: "INDIA 1992", color: "tag-red" },
+            { text: "May 2004 — UPA coalition election victory shocks markets · Sensex falls 15.5% in a single session · Upper circuit breakers triggered for the first time in NSE history", tag: "INDIA 2004", color: "tag-red" },
+            { text: "January 2009 — Satyam Computer Chairman confesses to ₹7,136 Cr accounting fraud · Largest corporate scandal in Indian market history", tag: "INDIA 2009", color: "tag-red" },
+            { text: "March 2020 — Sensex drops 3,935 points in a single session · Worst single-day point fall in Indian market history · Lower circuit triggered within 45 minutes of open", tag: "INDIA 2020", color: "tag-red" },
+            { text: "November 2010 — Coal India IPO raises ₹15,200 Cr · Largest Indian IPO at the time · Subscribed 15.3x · Sets benchmark for public sector divestment", tag: "INDIA 2010", color: "tag-green" },
+            { text: "May 2022 — LIC IPO raises ₹20,557 Cr · Largest IPO in Indian market history · LIC's embedded value estimated at ₹5.4 lakh crore", tag: "INDIA 2022", color: "tag-green" },
+            { text: "November 2006 — Sensex crosses 13,000 for the first time · India's total market cap surpasses $1 trillion · Marks India's entry into global institutional allocation", tag: "INDIA 2006", color: "tag-green" },
+            { text: "October 2008 — Sensex loses 60% from peak · FIIs withdraw ₹52,000 Cr in a single year · Worst bear market in India's post-liberalisation history", tag: "INDIA 2008", color: "tag-red" },
+            { text: "September 2000 — NSE launches equity derivatives trading · First index futures contract in India · Transforms institutional price discovery and risk management", tag: "INDIA 2000", color: "tag-cyan" },
+            { text: "July 1991 — India averts sovereign default · 47 tonnes of gold airlifted to Bank of England · Triggers landmark liberalisation under Finance Minister Manmohan Singh", tag: "INDIA 1991", color: "tag-amber" },
+            { text: "December 2023 — Indian market cap crosses $4 trillion · India becomes the 4th largest equity market globally · Overtakes Hong Kong for the first time in history", tag: "INDIA 2023", color: "tag-green" },
+            { text: "January 2021 — Nifty 50 crosses 15,000 · Doubles from March 2020 lows in under 10 months · Fastest post-crash equity recovery in Indian market history", tag: "INDIA 2021", color: "tag-green" },
+            { text: "August 2013 — Rupee hits all-time low of ₹68.85 to the dollar · RBI deploys emergency measures including gold import restrictions and capital controls", tag: "INDIA 2013", color: "tag-red" },
+            { text: "February 1996 — NSE introduces screen-based electronic trading nationally · Replaces open-outcry system used since 1875 · Dematerialisation of securities begins", tag: "INDIA 1996", color: "tag-cyan" },
+            { text: "October 1929 — Black Tuesday · Dow Jones falls 12.8% in a single session · $30 billion in market value erased · Triggers the Great Depression lasting a decade", tag: "USA 1929", color: "tag-red" },
+            { text: "October 1987 — Black Monday · Dow Jones collapses 22.6% in one session · Largest single-day percentage decline in US market history · Program trading identified as trigger", tag: "USA 1987", color: "tag-red" },
+            { text: "March 2000 — NASDAQ peaks at 5,048 · Dot-com bubble bursts · Index falls 78% over 30 months · Over $5 trillion in global market value permanently destroyed", tag: "USA 2000", color: "tag-red" },
+            { text: "December 2001 — Enron files for bankruptcy with $63 billion in assets · Largest corporate bankruptcy in US history at the time · Leads to the Sarbanes-Oxley Act", tag: "USA 2001", color: "tag-red" },
+            { text: "September 2008 — Lehman Brothers files Chapter 11 with $639 billion in assets · Largest bankruptcy in US history · Triggers coordinated global financial crisis", tag: "USA 2008", color: "tag-red" },
+            { text: "May 2010 — Flash Crash · Dow Jones drops 1,000 points in under 10 minutes · $1 trillion in market value evaporates · Algorithmic trading identified as primary cause", tag: "USA 2010", color: "tag-red" },
+            { text: "March 2020 — S&P 500 enters bear market in 16 trading days · Fastest bear market in US history · Fed cuts rates to zero and deploys $2.3 trillion in emergency stimulus", tag: "USA 2020", color: "tag-red" },
+            { text: "August 2018 — Apple becomes first publicly traded US company to reach $1 trillion market capitalisation · Reached 42 years after its IPO at $22 per share", tag: "USA 2018", color: "tag-green" },
+            { text: "January 2021 — GameStop short squeeze · Retail investors coordinate via Reddit · Stock rises 1,741% in three weeks · Multiple institutional hedge funds sustain severe losses", tag: "USA 2021", color: "tag-amber" },
+            { text: "2022 — S&P 500 records worst year since 2008 · Fed raises rates 425 basis points · Fastest monetary tightening cycle in 40 years · $18 trillion in global equity value erased", tag: "USA 2022", color: "tag-red" },
+            { text: "May 1792 — NYSE founded under the Buttonwood Agreement · 24 brokers sign beneath a buttonwood tree on Wall Street · Birth of the world's most influential exchange", tag: "USA 1792", color: "tag-cyan" },
+        ];
+
+        const marqueeEl = document.getElementById('marquee');
+        const allItems = [...marqueeItems, ...marqueeItems, ...marqueeItems, ...marqueeItems];
+
+        allItems.forEach(item => {
+            const div = document.createElement('div');
+            div.className = 'marquee-item';
+            div.innerHTML = `<span class="tag ${item.color}">${item.tag}</span> ${item.text}`;
+            marqueeEl.appendChild(div);
+        });
+
+        // === FLOATING CURRENCY SYMBOLS ===
+        const currencies = ['$', '€', '£', '¥', '₹', '₩', '₽', '₿', 'Ξ', '₣'];
+        const currencyBg = document.getElementById('currencyBg');
+
+        for (let i = 0; i < 25; i++) {
+            const span = document.createElement('span');
+            const size = Math.random() * 28 + 14;
+            const colors = ['var(--text-faint)', 'var(--green)', 'var(--cyan)', 'var(--amber)', 'var(--purple)'];
+            span.textContent = currencies[Math.floor(Math.random() * currencies.length)];
+            span.style.left = `${Math.random() * 100}%`;
+            span.style.fontSize = `${size}px`;
+            span.style.color = colors[Math.floor(Math.random() * colors.length)];
+            span.style.animationDuration = `${Math.random() * 15 + 20}s`;
+            span.style.animationDelay = `${Math.random() * -30}s`;
+            currencyBg.appendChild(span);
+        }
+
+        // === TAB SWITCHING ===
+        function switchTab(name) {
+            const tabs = ['overview', 'how', 'data', 'team'];
+
+            // Nav tab buttons
+            document.querySelectorAll('.tab-btn').forEach((b, i) => {
+                b.classList.toggle('active', tabs[i] === name);
+            });
+
+            // Sidebar tab buttons
+            tabs.forEach(t => {
+                const el = document.getElementById('stab-' + t);
+                if (el) el.classList.toggle('active', t === name);
+            });
+
+            // Page visibility
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + name).classList.add('active');
+
+            // Close sidebar if open
+            closeSidebar();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // === SIDEBAR ===
+        function openSidebar() {
+            document.getElementById('sidebar').classList.add('open');
+            document.getElementById('sidebarOverlay').classList.add('open');
+            document.getElementById('hamburger').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeSidebar() {
+            document.getElementById('sidebar').classList.remove('open');
+            document.getElementById('sidebarOverlay').classList.remove('open');
+            document.getElementById('hamburger').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        // === FAQ ACCORDION ===
+        function toggleFaq(el) {
+            const item = el.parentElement;
+            const wasOpen = item.classList.contains('open');
+            document.querySelectorAll('.faq-item').forEach(f => f.classList.remove('open'));
+            if (!wasOpen) item.classList.add('open');
+        }
+    </script>
+</body>
+</html>
