@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AnomalyEngine — Quantitative Analytics for Retail Investors</title>
-    <link rel="icon" type="image/png" href="images/favicon1.png">
-    <link rel="apple-touch-icon" href="images/favicon1.png">
-    <meta name="description" content="AnomalyEngine processes 148+ variables across macro, micro, corporate, and technical data to isolate market anomalies — giving retail investors institutional-grade data infrastructure.">
+    <title>Tessarion — Quantitative Analytics for Retail Investors</title>
+    <link rel="icon" type="image/png" href="images/logo.png">
+    <link rel="apple-touch-icon" href="images/logo.png">
+    <meta name="description" content="Tessarion processes 148+ variables across macro, micro, corporate, and technical data to isolate market anomalies — giving retail investors institutional-grade data infrastructure.">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Google tag (gtag.js) -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-B01RVLKL5G"></script>
@@ -14,7 +14,6 @@
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
         gtag('js', new Date());
-
         gtag('config', 'G-B01RVLKL5G');
     </script>
     <style>
@@ -24,9 +23,9 @@
             --bg-card-2: #0f0f0f;
             --border: rgba(255,255,255,0.06);
             --border-bright: rgba(255,255,255,0.12);
-            --text: #e8e8e8;
-            --text-dim: #888;
-            --text-faint: #444;
+            --text: #ffffff;
+            --text-dim: #d0d0d0;
+            --text-faint: #888;
             --green: #00d26a;
             --green-dim: rgba(0,210,106,0.12);
             --red: #ff4757;
@@ -160,14 +159,18 @@
         .logo-mark {
             width: 32px; height: 32px;
             border-radius: 6px;
-            background: linear-gradient(135deg, var(--green), #00a854);
+            overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-family: var(--mono);
-            font-weight: 700;
-            font-size: 0.8rem;
-            color: #000;
+            background: var(--green-dim);
+            border: 1px solid rgba(0,210,106,0.2);
+        }
+
+        .logo-mark img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
         }
 
         .logo-text {
@@ -200,7 +203,7 @@
             letter-spacing: 0.3px;
             background: none;
             border: 1px solid transparent;
-            color: var(--text-faint);
+            color: #aaa;
             padding: 6px 14px;
             border-radius: 6px;
             cursor: pointer;
@@ -295,7 +298,6 @@
 
         /* === PAGE 1: OVERVIEW === */
 
-        /* Hero two-col layout */
         .hero-grid {
             padding: 4rem 0 3rem;
         }
@@ -348,108 +350,9 @@
         .hero-copy .hero-sub {
             font-family: var(--mono);
             font-size: 0.82rem;
-            color: var(--text-faint);
+            color: #aaa;
             line-height: 1.9;
             max-width: 420px;
-        }
-
-        /* Hero note card (right side) */
-        .hero-note-card {
-            background: var(--bg-card);
-            border: 1px solid rgba(0,210,106,0.15);
-            border-radius: 14px;
-            padding: 2rem;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero-note-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0;
-            width: 4px; height: 100%;
-            background: var(--green);
-            border-radius: 14px 0 0 14px;
-        }
-
-        .hero-note-card::after {
-            content: '';
-            position: absolute;
-            top: -60%; right: -20%;
-            width: 300px; height: 300px;
-            background: radial-gradient(circle, rgba(0,210,106,0.05), transparent 70%);
-            pointer-events: none;
-        }
-
-        .note-denom {
-            font-family: var(--mono);
-            font-size: 3rem;
-            font-weight: 700;
-            color: var(--green);
-            line-height: 1;
-        }
-
-        .note-denom-sub {
-            font-family: var(--mono);
-            font-size: 0.6rem;
-            color: var(--text-faint);
-            letter-spacing: 2px;
-            margin-top: 3px;
-            margin-bottom: 1rem;
-        }
-
-        .note-serial {
-            font-family: var(--mono);
-            font-size: 0.6rem;
-            color: rgba(255,255,255,0.06);
-            letter-spacing: 1.5px;
-            margin-bottom: 1.25rem;
-        }
-
-        .note-dots {
-            display: flex;
-            gap: 5px;
-            margin-bottom: 1.25rem;
-        }
-
-        .note-dot {
-            width: 6px; height: 6px;
-            border-radius: 50%;
-            background: var(--border-bright);
-        }
-
-        .note-dot:nth-child(2) { background: rgba(0,210,106,0.3); width: 8px; height: 8px; }
-        .note-dot:nth-child(3) { background: var(--green); }
-
-        .note-face {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border);
-        }
-
-        .note-avatar {
-            width: 36px; height: 36px;
-            border-radius: 50%;
-            background: var(--green-dim);
-            border: 1px solid rgba(0,210,106,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: var(--mono);
-            font-size: 0.72rem;
-            font-weight: 700;
-            color: var(--green);
-            flex-shrink: 0;
-        }
-
-        .note-name { font-size: 0.88rem; font-weight: 600; color: var(--text); }
-        .note-role {
-            font-family: var(--mono);
-            font-size: 0.6rem;
-            color: var(--text-faint);
-            letter-spacing: 1px;
         }
 
         /* Pain grid */
@@ -490,7 +393,7 @@
         .pain-desc {
             font-family: var(--mono);
             font-size: 0.7rem;
-            color: var(--text-faint);
+            color: #888;
             line-height: 1.65;
         }
 
@@ -546,7 +449,7 @@
         .vs-item {
             font-family: var(--mono);
             font-size: 0.74rem;
-            color: var(--text-faint);
+            color: #aaa;
             padding: 6px 0;
             border-bottom: 1px solid var(--border);
             display: flex;
@@ -567,21 +470,8 @@
             font-family: var(--mono);
             font-size: 1.1rem;
             font-weight: 700;
-            color: var(--text-faint);
+            color: #888;
             padding-top: 3rem;
-        }
-
-        /* Inline disclaimer box */
-        .inline-disc {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 1rem 1.25rem;
-            font-family: var(--mono);
-            font-size: 0.7rem;
-            color: var(--text-faint);
-            line-height: 1.8;
-            margin-top: 2rem;
         }
 
         /* === PAGE 2: HOW IT WORKS === */
@@ -633,7 +523,7 @@
         .how-seal-txt {
             font-family: var(--mono);
             font-size: 0.55rem;
-            color: var(--text-faint);
+            color: #888;
             letter-spacing: 1px;
         }
 
@@ -723,7 +613,7 @@
         .step-desc {
             font-family: var(--mono);
             font-size: 0.74rem;
-            color: var(--text-faint);
+            color: #aaa;
             line-height: 1.75;
         }
 
@@ -763,7 +653,7 @@
         .faq-icon {
             font-family: var(--mono);
             font-size: 1.1rem;
-            color: var(--text-faint);
+            color: #888;
             flex-shrink: 0;
             transition: transform 0.2s, color 0.2s;
             line-height: 1;
@@ -776,7 +666,7 @@
             padding: 0 1.4rem 1.1rem;
             font-family: var(--mono);
             font-size: 0.76rem;
-            color: var(--text-faint);
+            color: #aaa;
             line-height: 1.85;
             border-top: 1px solid var(--border);
             padding-top: 1rem;
@@ -815,7 +705,7 @@
         .mc-l {
             font-family: var(--mono);
             font-size: 0.6rem;
-            color: var(--text-faint);
+            color: #888;
             letter-spacing: 1.5px;
         }
 
@@ -845,7 +735,7 @@
             gap: 5px;
             font-family: var(--mono);
             font-size: 0.62rem;
-            color: var(--text-faint);
+            color: #888;
             letter-spacing: 0.5px;
         }
 
@@ -884,7 +774,7 @@
 
         .data-table th {
             text-align: left;
-            color: var(--text-faint);
+            color: #888;
             letter-spacing: 1.2px;
             font-size: 0.6rem;
             padding: 8px 12px;
@@ -900,7 +790,7 @@
 
         .data-table tr:hover td { background: var(--bg-card); color: var(--text); }
         .data-table .col-green  { color: var(--green); }
-        .data-table .col-dim    { color: var(--text-faint); }
+        .data-table .col-dim    { color: #888; }
 
         /* Gold bar */
         .gold-bar {
@@ -954,7 +844,7 @@
         .gold-copy-body {
             font-family: var(--mono);
             font-size: 0.74rem;
-            color: var(--text-faint);
+            color: #aaa;
             line-height: 1.85;
         }
 
@@ -1020,7 +910,7 @@
         .founder-focus {
             font-family: var(--mono);
             font-size: 0.76rem;
-            color: var(--text-faint);
+            color: #aaa;
             line-height: 1.75;
         }
 
@@ -1073,7 +963,7 @@
         .skill-tag {
             font-family: var(--mono);
             font-size: 0.65rem;
-            color: var(--text-faint);
+            color: #aaa;
             border: 1px solid var(--border);
             border-radius: 4px;
             padding: 4px 10px;
@@ -1109,7 +999,7 @@
         .cta-note {
             font-family: var(--mono);
             font-size: 0.7rem;
-            color: var(--text-faint);
+            color: #888;
         }
 
         /* === FOOTER === */
@@ -1130,7 +1020,7 @@
             border-radius: 8px;
             padding: 1.25rem 1.75rem;
             font-size: 0.74rem;
-            color: var(--text-faint);
+            color: #aaa;
             line-height: 1.75;
             text-align: center;
             font-family: var(--mono);
@@ -1152,15 +1042,17 @@
             align-items: center;
             gap: 8px;
             font-size: 0.82rem;
-            color: var(--text-faint);
+            color: #aaa;
         }
 
-        .footer-brand .logo-mark { width: 22px; height: 22px; font-size: 0.6rem; }
+        .footer-brand .logo-mark {
+            width: 22px; height: 22px;
+        }
 
         .footer-year {
             font-family: var(--mono);
             font-size: 0.72rem;
-            color: var(--text-faint);
+            color: #888;
         }
 
         .engine-live {
@@ -1303,7 +1195,7 @@
         .sidebar-tab.active .sidebar-tab-icon { background: rgba(0,210,106,0.15); }
 
         .sidebar-tab-label { display: flex; flex-direction: column; gap: 2px; }
-        .sidebar-tab-label span { font-size: 0.72rem; color: var(--text-faint); font-family: var(--mono); letter-spacing: 0.3px; }
+        .sidebar-tab-label span { font-size: 0.72rem; color: #888; font-family: var(--mono); letter-spacing: 0.3px; }
 
         .sidebar-footer {
             padding: 16px 20px;
@@ -1312,26 +1204,19 @@
         .sidebar-footer p {
             font-family: var(--mono);
             font-size: 0.62rem;
-            color: var(--text-faint);
+            color: #888;
             line-height: 1.7;
         }
 
         /* === RESPONSIVE === */
         @media (max-width: 768px) {
-            /* Marquee */
             .marquee-item      { font-size: 0.65rem; padding: 0 16px; }
             .marquee-item .tag { font-size: 0.55rem; padding: 2px 6px; }
-
-            /* Nav */
             .nav-tabs  { display: none; }
             .hamburger { display: flex; }
             nav        { padding: 10px 16px; }
-
-            /* Layout */
             .page-wrap     { padding: 0 16px 60px; }
             .hero-grid     { padding: 2rem 0 1.5rem; }
-            .hero-copy h1,
-            section .hero h1 { letter-spacing: -1px; }
             .pain-grid     { grid-template-columns: repeat(2,1fr); }
             .vs-row        { grid-template-columns: 1fr; }
             .vs-mid        { padding: 0.25rem 0; text-align: center; }
@@ -1357,9 +1242,7 @@
 
     <!-- MARQUEE -->
     <div class="marquee-wrap">
-        <div class="marquee-inner" id="marquee">
-            <!-- Content injected by JS for seamless loop -->
-        </div>
+        <div class="marquee-inner" id="marquee"></div>
     </div>
 
     <!-- FLOATING CURRENCY SYMBOLS -->
@@ -1372,9 +1255,11 @@
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <div class="sidebar-logo">
-                <div class="logo-mark">AE</div>
+                <div class="logo-mark">
+                    <img src="images/logo.png" alt="Tessarion Logo">
+                </div>
                 <div>
-                    <div class="logo-text">AnomalyEngine</div>
+                    <div class="logo-text">Tessarion</div>
                     <div class="logo-sub">Quantitative Analytics</div>
                 </div>
             </div>
@@ -1399,7 +1284,7 @@
             </button>
         </nav>
         <div class="sidebar-footer">
-            <p>© 2025–2026 AnomalyEngine · India<br>Quantitative Data Analytics Platform</p>
+            <p>© 2025–2026 Tessarion · India<br>Quantitative Data Analytics Platform</p>
         </div>
     </div>
 
@@ -1407,9 +1292,11 @@
     <nav>
         <div class="nav-inner">
             <a href="#" class="logo" onclick="switchTab('overview'); return false;">
-                <div class="logo-mark">AE</div>
+                <div class="logo-mark">
+                    <img src="images/logo.png" alt="Tessarion Logo">
+                </div>
                 <div>
-                    <div class="logo-text">AnomalyEngine</div>
+                    <div class="logo-text">Tessarion</div>
                     <div class="logo-sub">Quantitative Analytics</div>
                 </div>
             </a>
@@ -1442,7 +1329,7 @@
                     <h1 style="font-size:clamp(2.4rem,5.5vw,4.2rem);font-weight:900;line-height:1.05;letter-spacing:-2px;max-width:850px;margin-bottom:1.5rem">
                         Processing High-Dimensional <span class="hl">Market Physics</span> for <span class="hl" style="color: #00ff88;">Retail Investors.</span>
                     </h1>
-                    <p class="hero-sub" style="font-size:clamp(1rem,2vw,1.25rem);max-width:700px;margin-bottom:2rem">AnomalyEngine tracks multi-digit variables across microeconomic indicators, structural corporate disclosures, and global macroeconomic data streams to isolate market anomalies.</p>
+                    <p class="hero-sub" style="font-size:clamp(1rem,2vw,1.25rem);max-width:700px;margin-bottom:2rem;color:#d0d0d0">Tessarion tracks multi-digit variables across microeconomic indicators, structural corporate disclosures, and global macroeconomic data streams to isolate market anomalies.</p>
                 </div>
 
                 <div class="divider"></div>
@@ -1489,7 +1376,7 @@
 
                 <!-- VS Comparison -->
                 <div class="sec-label">HOW WE POSITION</div>
-                <h2 class="sec-h2">Them vs <span class="hl">AnomalyEngine</span></h2>
+                <h2 class="sec-h2">Them vs <span class="hl">Tessarion</span></h2>
 
                 <div class="vs-row">
                     <div class="vs-col them">
@@ -1503,7 +1390,7 @@
                     </div>
                     <div class="vs-mid">VS</div>
                     <div class="vs-col us">
-                        <div class="vs-label">ANOMALYENGINE</div>
+                        <div class="vs-label">TESSARION</div>
                         <div class="vs-item"><span class="tick">✓</span>Multi-hundred variable processing</div>
                         <div class="vs-item"><span class="tick">✓</span>Global macro-micro correlation</div>
                         <div class="vs-item"><span class="tick">✓</span>Historical cycle pattern matching</div>
@@ -1512,7 +1399,6 @@
                         <div class="vs-item"><span class="tick">✓</span>Real-time data stream processing</div>
                     </div>
                 </div>
-
 
             </div>
         </div>
@@ -1526,7 +1412,7 @@
                 <div class="how-hero">
                     <div class="how-seal">
                         <div class="how-seal-sym">$</div>
-                        <div class="how-seal-txt">AE</div>
+                        <div class="how-seal-txt">TS</div>
                     </div>
                     <div>
                         <div class="how-hero-label">HOW IT WORKS — SIMPLE VERSION</div>
@@ -1591,7 +1477,7 @@
                     </div>
                     <div class="faq-item">
                         <div class="faq-q" onclick="toggleFaq(this)">How is this different from Tickertape or Screener.in?<span class="faq-icon">+</span></div>
-                        <div class="faq-a">Those tools show company-level fundamentals — mostly standard financial ratios from balance sheets. AnomalyEngine cross-correlates those same fundamentals against macro indicators, sector cycles, FII positioning, global events, and historical stress patterns simultaneously. The difference is dimension count, not data type.</div>
+                        <div class="faq-a">Those tools show company-level fundamentals — mostly standard financial ratios from balance sheets. Tessarion cross-correlates those same fundamentals against macro indicators, sector cycles, FII positioning, global events, and historical stress patterns simultaneously. The difference is dimension count, not data type.</div>
                     </div>
                     <div class="faq-item">
                         <div class="faq-q" onclick="toggleFaq(this)">Do I need to understand quant finance to use this?<span class="faq-icon">+</span></div>
@@ -1603,7 +1489,7 @@
                     </div>
                     <div class="faq-item">
                         <div class="faq-q" onclick="toggleFaq(this)">What if I already use a paid research service?<span class="faq-icon">+</span></div>
-                        <div class="faq-a">AnomalyEngine is a verification layer, not a replacement for research. Use it to objectively check whether the data supports the thesis you are being sold. If the macro, micro, and filing signals align with the recommendation — great. If they don't, you now know before you invest.</div>
+                        <div class="faq-a">Tessarion is a verification layer, not a replacement for research. Use it to objectively check whether the data supports the thesis you are being sold. If the macro, micro, and filing signals align with the recommendation — great. If they don't, you now know before you invest.</div>
                     </div>
                 </div>
             </div>
@@ -1724,7 +1610,7 @@
                         <div class="founder-av">NP</div>
                         <h3>Nishant Parwani</h3>
                         <div class="founder-role">CO-FOUNDER · STRATEGIST &amp; BUSINESS LEAD</div>
-                        <p class="founder-focus">Drives the strategic and financial direction of AnomalyEngine. Focused on market positioning, investor relations, and translating complex quantitative research into a product framework that serves retail participants. Bridges the gap between financial domain knowledge and what the engine needs to solve.</p>
+                        <p class="founder-focus">Drives the strategic and financial direction of Tessarion. Focused on market positioning, investor relations, and translating complex quantitative research into a product framework that serves retail participants. Bridges the gap between financial domain knowledge and what the engine needs to solve.</p>
                     </div>
                     <div class="founder-card">
                         <div class="founder-av">DJ</div>
@@ -1760,7 +1646,6 @@
                             <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
                             contact@nishantparwani.com
                         </a>
-
                     </div>
                 </div>
             </div>
@@ -1772,18 +1657,20 @@
     <div class="footer-wrap">
         <div class="footer">
             <div class="disclaimer">
-                <strong>Disclaimer:</strong> AnomalyEngine is an automated quantitative data analytics software. We are not a SEBI-registered Investment Adviser (RIA) or Research Analyst. The engine compiles and analyzes data from public filings; outputs do not constitute formal investment advice or directional trading tips. Users are strongly encouraged to verify all information independently or review data patterns with a licensed financial professional before making any investment decision.
+                <strong>Disclaimer:</strong> Tessarion is an automated quantitative data analytics software. We are not a SEBI-registered Investment Adviser (RIA) or Research Analyst. The engine compiles and analyzes data from public filings; outputs do not constitute formal investment advice or directional trading tips. Users are strongly encouraged to verify all information independently or review data patterns with a licensed financial professional before making any investment decision.
             </div>
             <div class="footer-bottom">
                 <div class="footer-brand">
-                    <div class="logo-mark">AE</div>
-                    <span>AnomalyEngine</span>
+                    <div class="logo-mark">
+                        <img src="images/logo.png" alt="Tessarion Logo">
+                    </div>
+                    <span>Tessarion</span>
                 </div>
                 <div class="engine-live">
                     <span class="pulse-dot" style="width:5px;height:5px;background:var(--green);border-radius:50%;display:inline-block;animation:pulse 2s ease-in-out infinite"></span>
                     ENGINE ONLINE
                 </div>
-                <div class="footer-year">© 2025–2026 ANOMALYENGINE · INDIA</div>
+                <div class="footer-year">© 2025–2026 TESSARION · INDIA</div>
             </div>
         </div>
     </div>
@@ -1849,22 +1736,18 @@
         function switchTab(name) {
             const tabs = ['overview', 'how', 'data', 'team'];
 
-            // Nav tab buttons
             document.querySelectorAll('.tab-btn').forEach((b, i) => {
                 b.classList.toggle('active', tabs[i] === name);
             });
 
-            // Sidebar tab buttons
             tabs.forEach(t => {
                 const el = document.getElementById('stab-' + t);
                 if (el) el.classList.toggle('active', t === name);
             });
 
-            // Page visibility
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById('page-' + name).classList.add('active');
 
-            // Close sidebar if open
             closeSidebar();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
